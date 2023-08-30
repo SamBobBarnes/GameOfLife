@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace GameOfLife;
 
 public class GameOfLife
@@ -48,7 +46,7 @@ public class GameOfLife
             Evolve();
             Console.Clear();
             Console.WriteLine(ToString());
-            Thread.Sleep(1000);
+            Thread.Sleep(300);
         }
     }
 

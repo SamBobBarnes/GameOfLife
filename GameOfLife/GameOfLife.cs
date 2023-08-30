@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+
 namespace GameOfLife;
 
 public class GameOfLife
@@ -6,12 +8,36 @@ public class GameOfLife
     private int[,] _tempBoard;
     protected int _width;
     protected int _height;
-    public GameOfLife(int width = 100, int height = 100)
+    public GameOfLife(int width, int height)
     {
         _width = width;
         _height = height;
         _board = new int[height,width];
         ResetTempBoard();
+    }
+
+    public GameOfLife()
+    {
+        GetSeed();
+        ResetTempBoard();
+    }
+
+    private void GetSeed()
+    {
+        var input = System.IO.File.ReadAllText(@"../../../seed.txt");
+        input = input.Replace("\r", "");
+        var lines = input.Split("\n");
+        _width = lines[0].Length;
+        _height = lines.Length;
+        _board = new int[_height, _width];
+        for (int i = 0; i < _height; i++)
+        {
+            var row = lines[i].ToCharArray();
+            for (int j = 0; j < _width; j++)
+            {
+                _board[i, j] = row[j] == '1' ? 1 : 0;
+            }
+        }
     }
 
     public void Run(int evolutions)

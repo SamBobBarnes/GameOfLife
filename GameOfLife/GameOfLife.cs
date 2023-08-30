@@ -3,31 +3,46 @@ namespace GameOfLife;
 public class GameOfLife
 {
     protected int[,] _board;
+    private int[,] _tempBoard;
     protected int _width;
     protected int _height;
     public GameOfLife(int width = 100, int height = 100)
     {
         _width = width;
         _height = height;
-        _board = new int[width,height];
+        _board = new int[height,width];
+        ResetTempBoard();
     }
 
     public void Run(int evolutions)
     {
-        throw new NotImplementedException();
+        Console.WriteLine(ToString());
+        for (int i = 0; i < evolutions; i++)
+        {
+            Evolve();
+            Console.Clear();
+            Console.WriteLine(ToString());
+            Thread.Sleep(1000);
+        }
     }
 
-    public void Birth(int x, int y)
+    public void FlipBoards()
     {
-        _board[x, y] = 1;
+        _board = _tempBoard;
+        ResetTempBoard();
     }
 
-    public bool ChechForBirth(int x, int y)
+    protected void ResetTempBoard()
     {
-        var left = x - 1 == -1 ? _width - 1 : x-1;
-        var right = x + 1 == _width ? 0 : x+1;
-        var up = y - 1 == -1 ? _height - 1 : y-1;
-        var down = y + 1 == _height ? 0 : y+1;
+        _tempBoard = new int[_height, _width];
+    }
+    
+    private int GetNeighbors(int x, int y)
+    {
+        var left = x - 1 == -1 ? _width - 1 : x - 1;
+        var right = x + 1 == _width ? 0 : x + 1;
+        var up = y - 1 == -1 ? _height - 1 : y - 1;
+        var down = y + 1 == _height ? 0 : y + 1;
 
         var relaventNeighbors = new List<Pair>
         {
@@ -41,17 +56,37 @@ public class GameOfLife
             new(right, down)
         };
 
-        return relaventNeighbors.Count(p => _board[p.X, p.Y] == 1) == 3;
+        return relaventNeighbors.Count(p => _board[p.Y, p.X] == 1);
     }
 
-    public void Kill(int x, int y)
+    public void Evolve()
     {
-        throw new NotImplementedException();
+        for (int j = 0; j < _height; j++)
+        {
+            for (int i = 0; i < _width; i++)
+            {
+                if (CheckForDeath(i, j)) continue;
+                if(CheckForBirth(i, j)) Add(i,j);
+                if(_board[j,i] == 1) Add(i,j);
+            }
+        }
+        FlipBoards();
+    }
+
+    public void Add(int x, int y)
+    {
+        _tempBoard[y, x] = 1;
+    }
+
+    public bool CheckForBirth(int x, int y)
+    {
+        return GetNeighbors(x, y) == 3;
     }
 
     public bool CheckForDeath(int x, int y)
     {
-        throw new NotImplementedException();
+        var count = GetNeighbors(x,y);
+        return count != 3 && count != 2;
     }
 
     public override string ToString()
@@ -61,7 +96,7 @@ public class GameOfLife
         {
             for (int j = 0; j < _width; j++)
             {
-                output += _board[j, i] == 0 ? " " : "0";
+                output += _board[i, j] == 0 ? " " : "0";
             }
 
             if(i+1 != _height) output += "\n";
@@ -90,5 +125,6 @@ public class TestGameOfLife : GameOfLife
         _width = board.GetLength(0);
         _height = board.GetLength(1);
         _board = board;
+        ResetTempBoard();
     }
 }

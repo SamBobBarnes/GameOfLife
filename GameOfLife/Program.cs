@@ -10,6 +10,7 @@ while (!validNumber)
         var evolutions = int.Parse(evolutionsString!);
         validNumber = true;
         Console.WriteLine($"We will evolve {evolutions} times.");
+        
         var game = new GameOfLife.GameOfLife();
         game.Run(evolutions);
     }
